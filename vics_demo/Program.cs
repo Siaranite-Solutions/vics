@@ -8,14 +8,18 @@ namespace vics_demo
         {
             while (true)
             {
+                Console.Write(">");
                 string input = Console.ReadLine();
                 string[] tokens = input.Split(' ');
                 if (input == "vics")
                 {
                     pre_exec.StartVICS();
                 }
-                else if (input == "")
-                pre_exec.StartVICS(tokens[1]);
+                else if (input.StartsWith("vics") && tokens.Length < 1)
+                {
+                    pre_exec.StartVICS(tokens[1]);
+                }
+                
             }
             
         }

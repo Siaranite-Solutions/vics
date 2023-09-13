@@ -19,9 +19,10 @@ namespace vics_edit
 
     public class pre_exec
     {
-        private static string _text;
-        private static string _filename;
-        private static bool _running;
+        private static string _text = String.Empty;
+        private static string _filename = String.Empty;
+        private static bool _running = true;
+        private static bool _fileSaved = true;
         private static bool _fileIsOpen;
 
         public static string Text
@@ -40,20 +41,7 @@ namespace vics_edit
             get { return _running; } 
         }
 
-        public static void StartVICS(string param)
-        {
-
-        }
-
-
-
-
-
-
-
-
-
-        public static void printMIVStartScreen()
+        public static void VICSStartScreen()
         {
             Console.Clear();
             Console.WriteLine("~");
@@ -63,12 +51,12 @@ namespace vics_edit
             Console.WriteLine("~");
             Console.WriteLine("~");
             Console.WriteLine("~");
-            Console.WriteLine("~                               MIV - MInimalistic Vi");
+            Console.WriteLine("~                              Vics - Vi for C Sharp");
             Console.WriteLine("~");
-            Console.WriteLine("~                                  version 1.3");
-            Console.WriteLine("~                             by Denis Bartashevich");
+            Console.WriteLine("~                                  version 1.4");
+            Console.WriteLine("~                                by Arawn Davies");
             Console.WriteLine("~");
-            Console.WriteLine("~                    MIV is open source and freely distributable");
+            Console.WriteLine("~                     VICS is open source and freely distributable");
             Console.WriteLine("~");
             Console.WriteLine("~                     type :help                 for information");
             Console.WriteLine("~                     type :o or open            to open a text file");
@@ -95,7 +83,7 @@ namespace vics_edit
             return newString;
         }
 
-        public static void printMIVScreen(char[] chars, int pos, String infoBar, Boolean editMode)
+        public static void RefreshScreen(char[] chars, int pos, String infoBar, Boolean editMode)
         {
             int countNewLine = 0;
             int countChars = 0;
@@ -150,7 +138,12 @@ namespace vics_edit
 
         }
 
-        public static String miv(String start)
+        /// <summary>
+        /// Open VICS using specified filename
+        /// </summary>
+        /// <param name="start"></param>
+        /// <returns></returns>
+        public static String VICS(String start)
         {
             Boolean editMode = false;
             int pos = 0;
@@ -159,7 +152,7 @@ namespace vics_edit
 
             if (start == null)
             {
-                printMIVStartScreen();
+                VICSStartScreen();
             }
             else
             {
@@ -169,7 +162,7 @@ namespace vics_edit
                 {
                     chars[i] = start[i];
                 }
-                printMIVScreen(chars, pos, infoBar, editMode);
+                RefreshScreen(chars, pos, infoBar, editMode);
             }
 
             ConsoleKeyInfo keyInfo;
@@ -184,7 +177,7 @@ namespace vics_edit
                 else if (!editMode && keyInfo.KeyChar == ':')
                 {
                     infoBar = ":";
-                    printMIVScreen(chars, pos, infoBar, editMode);
+                    RefreshScreen(chars, pos, infoBar, editMode);
                     do
                     {
                         keyInfo = Console.ReadKey(true);
@@ -192,18 +185,20 @@ namespace vics_edit
                         {
                             if (infoBar == ":wq" || infoBar == ":save" || infoBar == ":s")
                             {
-                                String returnString = String.Empty;
+                                _fileSaved = true;
+                                _text = String.Empty;
                                 for (int i = 0; i < pos; i++)
                                 {
-                                    returnString += chars[i];
+                                    _text += chars[i];
                                 }
-                                return returnString;
+                                return _text;
                             }
                             else if (infoBar == ":q" || infoBar == ":quit" || infoBar == ":exit" || infoBar == ":e")
                             {
                                 if (_fileIsOpen == false)
                                 {
-                                    break;
+                                    _fileSaved = false;
+                                    _running = false;
                                 }
                                 else
                                 {
@@ -213,7 +208,7 @@ namespace vics_edit
                             }
                             else if (infoBar == ":help" || infoBar == ":h")
                             {
-                                printMIVStartScreen();
+                                VICSStartScreen();
                                 break;
                             }
                             else if (infoBar == ":o" || infoBar == ":open")
@@ -224,14 +219,14 @@ namespace vics_edit
                             else
                             {
                                 infoBar = "ERROR: No such command";
-                                printMIVScreen(chars, pos, infoBar, editMode);
+                                RefreshScreen(chars, pos, infoBar, editMode);
                                 break;
                             }
                         }
                         else if (keyInfo.Key == ConsoleKey.Backspace)
                         {
                             infoBar = stringCopy(infoBar);
-                            printMIVScreen(chars, pos, infoBar, editMode);
+                            RefreshScreen(chars, pos, infoBar, editMode);
                         }
 
                         #region HandleMenuChars
@@ -304,7 +299,7 @@ namespace vics_edit
                         {
                             continue;
                         }
-                        printMIVScreen(chars, pos, infoBar, editMode);
+                        RefreshScreen(chars, pos, infoBar, editMode);
 
 
 
@@ -315,7 +310,7 @@ namespace vics_edit
                 {
                     editMode = false;
                     infoBar = String.Empty;
-                    printMIVScreen(chars, pos, infoBar, editMode);
+                    RefreshScreen(chars, pos, infoBar, editMode);
                     continue;
                 }
 
@@ -326,7 +321,7 @@ namespace vics_edit
                 {
                     editMode = true;
                     infoBar = "-- INSERT --";
-                    printMIVScreen(chars, pos, infoBar, editMode);
+                    RefreshScreen(chars, pos, infoBar, editMode);
                     continue;
                 }
 
@@ -334,7 +329,7 @@ namespace vics_edit
                 else if (keyInfo.Key == ConsoleKey.Enter && editMode && pos >= 0)
                 {
                     chars[pos++] = '\n';
-                    printMIVScreen(chars, pos, infoBar, editMode);
+                    RefreshScreen(chars, pos, infoBar, editMode);
                     continue;
                 }
                 // Backspace
@@ -344,7 +339,7 @@ namespace vics_edit
 
                     chars[pos] = '\0';
 
-                    printMIVScreen(chars, pos, infoBar, editMode);
+                    RefreshScreen(chars, pos, infoBar, editMode);
                     continue;
                 }
 
@@ -352,11 +347,12 @@ namespace vics_edit
                 if (editMode && pos >= 0)
                 {
                     chars[pos++] = keyInfo.KeyChar;
-                    printMIVScreen(chars, pos, infoBar, editMode);
+                    RefreshScreen(chars, pos, infoBar, editMode);
                 }
                 #endregion
 
-            } while (true);
+            } while (_running == true);
+            return _text;
         }
 
         public static bool isForbiddenKey(ConsoleKey key)
@@ -373,17 +369,18 @@ namespace vics_edit
         {
             for (int i = 0; i < time; i++) ;
         }
-        public static void StartMIV(string filename)
+
+        /// <summary>
+        /// Start VICS editor with specified filename
+        /// The file will be created if it doesn't exist.
+        /// </summary>
+        /// <param name="filename"></param>
+        public static void StartVICS(string filename)
         {
             try
             {
-                if (File.Exists(Paths.CurrentDirectory + @"\" + filename))
+                if (!File.Exists(Paths.CurrentDirectory + @"\" + filename))
                 {
-                    Console.WriteLine("Found file!");
-                }
-                else if (!File.Exists(Paths.CurrentDirectory + @"\" + filename))
-                {
-                    Console.WriteLine("Creating file!");
                     File.Create(Paths.CurrentDirectory + @"\" + filename);
                 }
                 Console.Clear();
@@ -394,27 +391,31 @@ namespace vics_edit
             }
 
             _fileIsOpen = true;
-            _text = miv(File.ReadAllText(Paths.CurrentDirectory + @"\" + filename));
-            Console.Clear();
 
-            if (_text != null)
+            try
+            {
+                _text = VICS(File.ReadAllText(Paths.CurrentDirectory + @"\" + filename));
+                Console.Clear();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                KernelExtensions.PressAnyKey();
+            }
+            if (_text != null && _fileSaved == true)
             {
                 File.WriteAllText(Paths.CurrentDirectory + @"\" + filename, _text);
                 Console.WriteLine("Content has been saved to " + filename);
             }
         }
-        public static void StartMIV()
+        /// <summary>
+        /// No command line args
+        /// </summary>
+        public static void StartVICS()
         {
-            String text = String.Empty;
-
-            printMIVStartScreen();
-
             try
             {
-                while (_running == true)
-                {
-                    text = miv(null);
-                }
+                _text = VICS(null);
                 Console.Clear();
             }
             catch (Exception ex)
@@ -423,9 +424,11 @@ namespace vics_edit
                 KernelExtensions.PressAnyKey();
             }
 
-            if (text != null)
+            if (_text != null && _fileSaved == true)
             {
-                File.WriteAllText(Paths.CurrentDirectory + @"\" + _filename, text);
+                Console.WriteLine("Enter the filename: ");
+                _filename = Console.ReadLine();
+                File.WriteAllText(Paths.CurrentDirectory + @"\" + _filename, _text);
                 Console.WriteLine("Content has been saved to " + _filename);
             }
         }
@@ -445,9 +448,21 @@ namespace vics_edit
             {
                 Console.WriteLine("Creating file!");
                 File.Create(Paths.CurrentDirectory + @"\" + _filename);
-
             }
-            _text = miv(File.ReadAllText(Paths.CurrentDirectory + @"\" + _filename));
+            try
+            {
+                _text = VICS(File.ReadAllText(Paths.CurrentDirectory + @"\" + _filename));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                KernelExtensions.PressAnyKey();
+            }
+            if (_text != null && _fileSaved == true)
+            {
+                File.WriteAllText(Paths.CurrentDirectory + @"\" + _filename, _text);
+                Console.WriteLine("Content has been saved to " + _filename);
+            }
         }
     }
 }
