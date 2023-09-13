@@ -9,15 +9,23 @@ namespace vics_demo
             while (true)
             {
                 Console.Write(">");
-                string input = Console.ReadLine();
-                string[] tokens = input.Split(' ');
-                if (input == "vics")
+                string[] tokens = Console.ReadLine().Split(' ');
+                
+                if (tokens[0] == "vics")
                 {
-                    pre_exec.StartVICS();
+                    
+                    if (tokens.Count() > 1)
+                    {
+                        vics.StartVICS(tokens[1]);
+                    }
+                    else
+                    {
+                        vics.StartVICS();
+                    }
                 }
-                else if (input.StartsWith("vics") && tokens.Length < 1)
+                else if (tokens[0] == "exit")
                 {
-                    pre_exec.StartVICS(tokens[1]);
+                    Environment.Exit(0);
                 }
                 
             }
