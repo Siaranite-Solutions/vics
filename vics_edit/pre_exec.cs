@@ -24,6 +24,7 @@ namespace vics_edit
         private static bool _running = true;
         private static bool _fileSaved = true;
         private static bool _fileIsOpen;
+        private static bool _openNextFile;
 
         public static void VICSStartScreen()
         {
@@ -83,6 +84,10 @@ namespace vics_edit
             try
             {
                 _text = VICS(File.ReadAllText(_filename));
+                if (_openNextFile == true)
+                {
+                    OpenFile();
+                }
                 Console.Clear();
             }
             catch (Exception ex)
@@ -105,6 +110,10 @@ namespace vics_edit
             try
             {
                 _text = VICS(null);
+                if (_openNextFile == true)
+                {
+                    OpenFile();
+                }
                 Console.Clear();
             }
             catch (Exception ex)
@@ -121,10 +130,11 @@ namespace vics_edit
                 
                 File.WriteAllText(_filename, _text);
                 Console.WriteLine("Content has been saved to " + _filename);
+                Console.WriteLine("");
             }
         }
 
-        public static void OpenFile()
+        public static bool OpenFile()
         {
             Console.Clear();
             Console.WriteLine("Enter file's filename to open:");
@@ -133,29 +143,31 @@ namespace vics_edit
              
             _filename = Paths.CurrentDirectory + filename;
 
-            if (File.Exists(_filename))
-            {
-                Console.WriteLine("Found file!");
-            }
-            else if (!File.Exists(_filename))
+            if (!File.Exists(_filename))
             {
                 Console.WriteLine("Creating file!");
-                File.Create(_filename);
+                File.Create(_filename).Dispose();
             }
             try
             {
                 _text = VICS(File.ReadAllText(_filename));
+                _running = false;
+                if (_text != null && _fileSaved == true)
+                {
+                    File.WriteAllText(_filename, _text);
+                    Console.WriteLine("Content has been saved to " + _filename);
+                }
             }
             catch (Exception ex)
             {
+                _running = false;
                 Console.WriteLine(ex.Message);
                 KernelExtensions.PressAnyKey();
+                return false;
+                
             }
-            if (_text != null && _fileSaved == true)
-            {
-                File.WriteAllText(Paths.CurrentDirectory + @"\" + _filename, _text);
-                Console.WriteLine("Content has been saved to " + _filename);
-            }
+            return false;
+            
         }
     }
 }

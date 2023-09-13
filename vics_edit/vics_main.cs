@@ -33,7 +33,7 @@ namespace vics_edit
 
             ConsoleKeyInfo keyInfo;
 
-            do
+            while (true)
             {
                 keyInfo = Console.ReadKey(true);
 
@@ -44,7 +44,7 @@ namespace vics_edit
                 {
                     infoBar = ":";
                     RefreshScreen(chars, pos, infoBar, editMode);
-                    do
+                    while (keyInfo.Key != ConsoleKey.Escape)
                     {
                         keyInfo = Console.ReadKey(true);
                         if (keyInfo.Key == ConsoleKey.Enter)
@@ -62,14 +62,7 @@ namespace vics_edit
                             }
                             else if (infoBar == ":q" || infoBar == ":quit" || infoBar == ":exit" || infoBar == ":e")
                             {
-                                if (_fileIsOpen == false)
-                                {
-                                    _fileSaved = false;
-                                }
-                                if (start == _text)
-                                {
-                                    _fileSaved = false;
-                                }
+                                _fileSaved = false;
                                 return _text;
 
                             }
@@ -81,8 +74,9 @@ namespace vics_edit
                             else if (infoBar == ":o" || infoBar == ":open")
                             {
 
-                                OpenFile();
-                                break;
+                                // Close this file (and instance), and set the 'open' flag to true, to enable opening of next file
+                                _openNextFile = true;
+                                return _text;
                             }
 
                             else
@@ -172,7 +166,7 @@ namespace vics_edit
 
 
 
-                    } while (keyInfo.Key != ConsoleKey.Escape);
+                    }
                 }
 
                 #endregion
@@ -221,7 +215,7 @@ namespace vics_edit
                 }
                 #endregion
 
-            } while (true);
+            }
         }
     }
 }
