@@ -6,7 +6,7 @@ namespace vics_edit
 
     public class Paths
     {
-        public static string CurrentDirectory = @"C:\Users\azama\Desktop\vics\output\";
+        public static string CurrentDirectory = System.Reflection.Assembly.GetExecutingAssembly().Location + @"\..\..\..\..\..\output\";
     }
 
     public class KernelExtensions

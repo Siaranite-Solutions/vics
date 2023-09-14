@@ -28,6 +28,14 @@ namespace vics_demo
                 {
                     Environment.Exit(0);
                 }
+                else if (tokens[0] == "dir")
+                {
+                    foreach (string file in Directory.GetFiles(Paths.CurrentDirectory))
+                    {
+                        string filename = Path.GetFileName(file);
+                        Console.WriteLine(filename);
+                    }
+                }
                 
             }
             
