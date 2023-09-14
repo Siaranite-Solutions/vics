@@ -20,6 +20,7 @@ namespace vics_demo
                     }
                     else
                     {
+                        vics.Filename = "";
                         vics.StartVICS();
                     }
                 }

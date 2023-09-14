@@ -9,12 +9,16 @@ namespace vics_edit
         /// </summary>
         /// <param name="preText"></param>
         /// <returns></returns>
-        public static String VICS(String start)
+        public static String VICS(String? start)
         {
             Boolean editMode = false;
+            _openNextFile = false;
+            _fileNeedsToBeSaved = false;
+
             int pos = 0;
             char[] chars = new char[2000];
             String infoBar = String.Empty;
+            _text = String.Empty;
 
             if (start == null)
             {
@@ -51,7 +55,7 @@ namespace vics_edit
                         {
                             if (infoBar == ":wq" || infoBar == ":save" || infoBar == ":s")
                             {
-                                _fileSaved = true;
+                                _fileNeedsToBeSaved = true;
                                 _text = String.Empty;
                                 for (int i = 0; i < pos; i++)
                                 {
@@ -62,7 +66,7 @@ namespace vics_edit
                             }
                             else if (infoBar == ":q" || infoBar == ":quit" || infoBar == ":exit" || infoBar == ":e")
                             {
-                                _fileSaved = false;
+                                _fileNeedsToBeSaved = false;
                                 return _text;
 
                             }
@@ -76,6 +80,7 @@ namespace vics_edit
 
                                 // Close this file (and instance), and set the 'open' flag to true, to enable opening of next file
                                 _openNextFile = true;
+
                                 return _text;
                             }
 
@@ -93,71 +98,73 @@ namespace vics_edit
                         }
 
                         #region HandleMenuChars
-                        else if (keyInfo.KeyChar == 'q')
+                        else if (keyInfo.KeyChar == 'a')
                         {
-                            infoBar += "q";
-                        }
-                        else if (keyInfo.KeyChar == ':')
-                        {
-                            infoBar += ":";
-                        }
-                        else if (keyInfo.KeyChar == 'w')
-                        {
-                            infoBar += "w";
-                        }
-                        else if (keyInfo.KeyChar == 'h')
-                        {
-                            infoBar += "h";
+                            infoBar += 'a';
                         }
                         else if (keyInfo.KeyChar == 'e')
                         {
                             infoBar += "e";
                         }
-                        else if (keyInfo.KeyChar == 'l')
+                        else if (keyInfo.KeyChar == 'h')
                         {
-                            infoBar += "l";
-                        }
-                        else if (keyInfo.KeyChar == 'p')
-                        {
-                            infoBar += "p";
-                        }
-                        else if (keyInfo.KeyChar == 'o')
-                        {
-                            infoBar += "o";
-                        }
-                        else if (keyInfo.KeyChar == 'n')
-                        {
-                            infoBar += 'n';
-                        }
-                        else if (keyInfo.KeyChar == 'x')
-                        {
-                            infoBar += 'x';
-                        }
-                        else if (keyInfo.KeyChar == 'u')
-                        {
-                            infoBar += 'u';
+                            infoBar += "h";
                         }
                         else if (keyInfo.KeyChar == 'i')
                         {
                             infoBar += 'i';
                         }
-                        else if (keyInfo.KeyChar == 't')
+                        else if (keyInfo.KeyChar == 'l')
                         {
-                            infoBar += 't';
+                            infoBar += "l";
+                        }
+                        else if (keyInfo.KeyChar == 'n')
+                        {
+                            infoBar += 'n';
+                        }
+                        else if (keyInfo.KeyChar == 'o')
+                        {
+                            infoBar += "o";
+                        }
+                        else if (keyInfo.KeyChar == 'p')
+                        {
+                            infoBar += "p";
+                        }
+                        else if (keyInfo.KeyChar == 'q')
+                        {
+                            infoBar += "q";
                         }
                         else if (keyInfo.KeyChar == 's')
                         {
                             infoBar += 's';
                         }
-                        else if (keyInfo.KeyChar == 'a')
+                        else if (keyInfo.KeyChar == 't')
                         {
-                            infoBar += 'a';
+                            infoBar += 't';
                         }
+                        else if (keyInfo.KeyChar == 'u')
+                        {
+                            infoBar += 'u';
+                        }
+
                         else if (keyInfo.KeyChar == 'v')
                         {
                             infoBar += 'v';
                         }
+                        else if (keyInfo.KeyChar == 'w')
+                        {
+                            infoBar += "w";
+                        }
+                        else if (keyInfo.KeyChar == 'x')
+                        {
+                            infoBar += 'x';
+                        }
+                        else if (keyInfo.KeyChar == ':')
+                        {
+                            infoBar += ":";
+                        }
                         #endregion
+
                         else
                         {
                             continue;

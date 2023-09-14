@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection.Metadata.Ecma335;
 
 namespace vics_edit
 {
@@ -20,10 +21,17 @@ namespace vics_edit
     public partial class vics
     {
         private static string _text = String.Empty;
+
         private static string _filename = String.Empty;
+
+        public static string Filename { get { return _filename; } set { _filename = value; } }
+
         private static bool _running = true;
-        private static bool _fileSaved = true;
+
+        private static bool _fileNeedsToBeSaved = false;
+
         private static bool _fileIsOpen;
+
         private static bool _openNextFile;
 
         public static void VICSStartScreen()
@@ -63,6 +71,7 @@ namespace vics_edit
         /// <param name="filename"></param>
         public static void StartVICS(string filename)
         {
+            Console.Clear();
             try
             {
                 if (!File.Exists(Paths.CurrentDirectory + @"\" + filename))
@@ -79,7 +88,7 @@ namespace vics_edit
             // Append the filename with the current directory path
             _filename = Paths.CurrentDirectory + filename;
 
-            _fileIsOpen = true; 
+            _fileIsOpen = true;
 
             try
             {
@@ -95,9 +104,9 @@ namespace vics_edit
                 Console.WriteLine(ex.Message);
                 KernelExtensions.PressAnyKey();
             }
-            if (_text != null && _fileSaved == true)
+            if (_text != null && _fileNeedsToBeSaved == true)
             {
-                
+
                 File.WriteAllText(_filename, _text);
                 Console.WriteLine("Content has been saved to " + filename);
             }
@@ -107,9 +116,12 @@ namespace vics_edit
         /// </summary>
         public static void StartVICS()
         {
+            Console.Clear();
             try
             {
+                _running = true;
                 _text = VICS(null);
+                _running = false;
                 if (_openNextFile == true)
                 {
                     OpenFile();
@@ -122,37 +134,53 @@ namespace vics_edit
                 KernelExtensions.PressAnyKey();
             }
 
-            if (_text != null && _fileSaved)
+            if (_text != null && _fileNeedsToBeSaved == true)
             {
-                Console.WriteLine("Enter the filename: ");
-                string filename = Console.ReadLine();
-                _filename = Paths.CurrentDirectory + filename;
-                
+
+                if (_filename == Paths.CurrentDirectory || _filename == "" || _filename == null)
+                {
+                    // File hasn't previously been saved.
+                    Console.WriteLine("Enter the filename to save: ");
+                    string? filename = Console.ReadLine();
+                    _filename = Paths.CurrentDirectory + filename;
+                }
+
                 File.WriteAllText(_filename, _text);
                 Console.WriteLine("Content has been saved to " + _filename);
-                Console.WriteLine("");
             }
         }
 
-        public static bool OpenFile()
+        public static void CreateFile()
         {
             Console.Clear();
-            Console.WriteLine("Enter file's filename to open:");
-            Console.WriteLine("If the specified file does not exist, it will be created.");
-            string filename = Console.ReadLine();
-             
-            _filename = Paths.CurrentDirectory + filename;
-
-            if (!File.Exists(_filename))
+            Console.Write("Enter filename to create: ");
+            string? filename = Console.ReadLine();
+            if (!File.Exists(Paths.CurrentDirectory + filename))
             {
                 Console.WriteLine("Creating file!");
-                File.Create(_filename).Dispose();
+                File.Create(Paths.CurrentDirectory + filename).Dispose();
             }
+            else
+            {
+                Console.WriteLine("File already exists!");
+                Console.WriteLine("Would you like to open it?");
+                ConsoleKeyInfo keyInfo = Console.ReadKey();
+                if (keyInfo.Key != ConsoleKey.Y)
+                {
+                    return;
+                }
+            }
+
+
+            _filename = Paths.CurrentDirectory + filename;
+            _fileIsOpen = true;
+            _running = true;
+
             try
             {
                 _text = VICS(File.ReadAllText(_filename));
                 _running = false;
-                if (_text != null && _fileSaved == true)
+                if (_text != null && _fileNeedsToBeSaved == true)
                 {
                     File.WriteAllText(_filename, _text);
                     Console.WriteLine("Content has been saved to " + _filename);
@@ -163,11 +191,62 @@ namespace vics_edit
                 _running = false;
                 Console.WriteLine(ex.Message);
                 KernelExtensions.PressAnyKey();
-                return false;
-                
+                return;
             }
-            return false;
-            
+
+
+        }
+
+        public static void OpenFile()
+        {
+            Console.Clear();
+            Console.Write("Enter filename to open: ");
+            string filename = Console.ReadLine();
+            try
+            {
+                if (!File.Exists(Paths.CurrentDirectory + @"\" + filename))
+                {
+
+                    Console.WriteLine("File does not exist!");
+                    Console.WriteLine("Would you like to create it?");
+                    ConsoleKeyInfo key = Console.ReadKey();
+                    if (key.Key == ConsoleKey.Y)
+                    {
+                        // Append the filename with the current directory path
+                        _filename = Paths.CurrentDirectory + filename;
+                        File.Create(_filename).Dispose();
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                Console.Clear();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                KernelExtensions.PressAnyKey();
+                return;
+            }
+
+
+            // Append the filename with the current directory path
+            _filename = Paths.CurrentDirectory + filename;
+            _fileIsOpen = true;
+            _running = true;
+
+            try
+            {
+                StartVICS(filename);
+            }
+            catch (Exception ex)
+            {
+                _running = false;
+                Console.WriteLine(ex.Message);
+                KernelExtensions.PressAnyKey();
+                return;
+            }
         }
     }
 }
